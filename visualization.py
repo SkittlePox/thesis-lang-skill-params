@@ -3,49 +3,78 @@ import numpy as np
 from sklearn import manifold
 
 
-def viz_manifold():
-    training = np.loadtxt("data/training.txt")
+def plot_manifold(samples: int = 2000, neighbors: int = 15):
+    data = np.loadtxt("data/training.txt")[:samples]
+    fig = plt.figure(figsize=(12, 6))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    delta_y = data[:, 4:6] - data[:, :2]
+    y = np.hstack((data[:, :4], delta_y))
 
-    # Y, err = manifold.locally_linear_embedding(training[:1000], n_neighbors=6, n_components=2)
-    Y = manifold.Isomap(10, 4).fit_transform(training[:3000])
+    cmap = get_cmap(data)
 
-    ax.scatter(Y[:, 0], Y[:, 1])
-    # print(Y[1])
-    # print(Y[:, 0])
+    isomap_3d = manifold.Isomap(n_neighbors=neighbors, n_components=3)
+    isomap_2d = manifold.Isomap(n_neighbors=neighbors, n_components=2)
+
+    manifold_3d = isomap_3d.fit_transform(y)
+    manifold_2d = isomap_2d.fit_transform(y)
+
+    ax = fig.add_subplot(121, projection='3d')
+    ax.set_title("ISOMAP run with 3 components")
+    ax.scatter(manifold_3d[:, 0], manifold_3d[:, 1], manifold_3d[:, 2], color=cmap)
+    ax.legend(["faster: red\nslower: orange\nhigher: blue\n lower: cyan"])
+
+    ax = fig.add_subplot(122)
+    ax.set_title("ISOMAP run with 2 components")
+    ax.scatter(manifold_2d[:, 0], manifold_2d[:, 1], color=cmap)
+
     plt.show()
 
-    # Fixing random state for reproducibility
-    # np.random.seed(19680801)
-    #
-    # def randrange(n, vmin, vmax):
-    #     """
-    #     Helper function to make an array of random numbers having shape (n, )
-    #     with each number distributed Uniform(vmin, vmax).
-    #     """
-    #     return (vmax - vmin) * np.random.rand(n) + vmin
-    #
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    #
-    # n = 100
-    #
-    # # For each set of style and range settings, plot n random points in the box
-    # # defined by x in [23, 32], y in [0, 100], z in [zlow, zhigh].
-    # for m, zlow, zhigh in [('o', -50, -25), ('^', -30, -5)]:
-    #     xs = randrange(n, 23, 32)
-    #     ys = randrange(n, 0, 100)
-    #     zs = randrange(n, zlow, zhigh)
-    #     ax.scatter(xs, ys, zs, marker=m)
-    #
-    # ax.set_xlabel('X Label')
-    # ax.set_ylabel('Y Label')
-    # ax.set_zlabel('Z Label')
-    #
-    # plt.show()
+
+def plot_manifold_vectors(samples: int = 2000):
+    data = np.loadtxt("data/training.txt")[:samples]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Vx')
+    ax.set_ylabel('Vy')
+    ax.set_title('Parameter Manifold')
+
+    delta_y = data[:, 4:6] - data[:, :2]
+
+    cmap = get_cmap(data)
+
+    q = plt.quiver(data[:, 0], data[:, 1], delta_y[:, 0], delta_y[:, 1], color=cmap, scale=100, width=0.002, minshaft=0.5)
+    ax.quiverkey(q, X=1.15, Y=0.5, U=5, label="faster: red\nslower: orange\nhigher: blue\n lower: cyan", labelpos="S")
+    plt.show()
+
+
+def get_cmap(data: np.array) -> np.array:
+    density_factor = 3.5
+    cmap = []
+    for i in data[:, 2:4]:
+        if i[0] != 0:
+            # faster/slower
+            if i[0] > 0:
+                # faster is red
+                cmap.append((1.0, 0.0, 0.0, i[0] / density_factor))
+            else:
+                # slower is orange
+                cmap.append((1.0, 0.5, 0.0, i[0] / -density_factor))
+        else:
+            # higher/lower
+            if i[1] > 0:
+                # higher is blue
+                cmap.append((0.0, 0.0, 1.0, i[1] / density_factor))
+            else:
+                # lower is cyan
+                cmap.append((0.0, 0.5, 1.0, i[1] / -density_factor))
+    return cmap
+
+
+def main():
+    # plot_manifold_vectors()
+    plot_manifold()
 
 
 if __name__ == "__main__":
-    viz_manifold()
+    main()
