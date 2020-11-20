@@ -3,7 +3,7 @@ import numpy as np
 from sklearn import manifold
 
 
-def plot_manifold(samples: int = 2000, neighbors: int = 15):
+def plot_manifold(samples: int = 2000, neighbors: int = 10):
     data = np.loadtxt("data/training.txt")[:samples]
     fig = plt.figure(figsize=(12, 6))
 
@@ -43,13 +43,13 @@ def plot_manifold_vectors(samples: int = 2000):
 
     cmap = get_cmap(data)
 
-    q = plt.quiver(data[:, 0], data[:, 1], delta_y[:, 0], delta_y[:, 1], color=cmap, scale=100, width=0.002, minshaft=0.5)
+    q = plt.quiver(data[:, 0], data[:, 1], delta_y[:, 0], delta_y[:, 1], color=cmap, scale=150, width=0.002, minshaft=0.5)
     ax.quiverkey(q, X=1.15, Y=0.5, U=5, label="faster: red\nslower: orange\nhigher: blue\n lower: cyan", labelpos="S")
     plt.show()
 
 
 def get_cmap(data: np.array) -> np.array:
-    density_factor = 3.5
+    density_factor = 1.5
     cmap = []
     for i in data[:, 2:4]:
         if i[0] != 0:
@@ -65,9 +65,12 @@ def get_cmap(data: np.array) -> np.array:
             if i[1] > 0:
                 # higher is blue
                 cmap.append((0.0, 0.0, 1.0, i[1] / density_factor))
-            else:
+            elif i[1] < 0:
                 # lower is cyan
                 cmap.append((0.0, 0.5, 1.0, i[1] / -density_factor))
+            else:
+                # no modifiers
+                cmap.append((0.25, 0.25, 0.25))
     return cmap
 
 

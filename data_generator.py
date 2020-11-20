@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 
-def generate_samples(count: int) -> [[], []]:
+def generate_samples(count: int) -> []:
     samples = []
     for i in range(count):
         vx0 = random.uniform(5, 10)
@@ -10,7 +10,7 @@ def generate_samples(count: int) -> [[], []]:
         vy0 = 50 * 1 / vx0 + dy0 * 1 / 10 * vx0
 
         # pick a language command vector
-        intensity = random.sample([-3, -2, -1, 1, 2, 3], 1)[0]
+        intensity = random.sample([-3, -2, -1, 0, 1, 2, 3], 1)[0]
         if bool(random.getrandbits(1)):
             # apply intensity to vx (faster)
             vx1 = random.gauss((vx0 + intensity), 0.1)
@@ -27,6 +27,42 @@ def generate_samples(count: int) -> [[], []]:
         sample = [vx0, vy0, c[0], c[1], vx1, vy1]
         samples.append(sample)
     return samples
+
+
+def generate_samples_uniform(count: int) -> []:
+    samples = []
+
+    for i in range(count):
+        vx0 = random.uniform(5, 10)
+        dy0 = random.uniform(-10, 10)
+        vy0 = 50 * 1 / vx0 + dy0 * 1 / 10 * vx0
+
+        if bool(random.getrandbits(1)):
+            # apply intensity to vx (faster)
+            vx1 = random.uniform(vx0 - 2.5, vx0 + 2.5)
+            dy1 = dy0
+            vy1 = 50 * 1 / vx1 + dy1 * 1 / 10 * vx1
+            if vx1 > vx0:
+                intensity = 1
+            else:
+                intensity = -1
+            c = [intensity, 0]
+        else:
+            # apply intensity to dy (higher)
+            vx1 = vx0
+            dy1 = random.uniform(dy0 - 10, dy0 + 10)
+            vy1 = 50 * 1 / vx1 + dy1 * 1 / 10 * vx1
+
+            if dy1 > dy0:
+                intensity = 1
+            else:
+                intensity = -1
+            c = [0, intensity]
+
+        sample = [vx0, vy0, c[0], c[1], vx1, vy1]
+        samples.append(sample)
+    return samples
+
 
 
 def calculate_normalization_values(samples: []) -> (np.array, np.array):
@@ -53,8 +89,8 @@ def normalize_samples(samples: [], mu: np.array, sigma2: np.array) -> []:
 
 
 def main():
-    samples_train = generate_samples(20000)
-    samples_test = generate_samples(2000)
+    samples_train = generate_samples_uniform(20000)
+    samples_test = generate_samples_uniform(2000)
 
     np.savetxt("data/training.txt", samples_train)
     np.savetxt("data/testing.txt", samples_test)
