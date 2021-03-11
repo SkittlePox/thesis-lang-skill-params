@@ -10,7 +10,7 @@ import torch.nn.functional as F
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.dense1 = nn.Linear(in_features=4, out_features=10)
+        self.dense1 = nn.Linear(in_features=770, out_features=10)
         self.dense2 = nn.Linear(in_features=10, out_features=10)
         self.dense3 = nn.Linear(in_features=10, out_features=2)
 
@@ -24,8 +24,8 @@ class Net(nn.Module):
 
 
 def test(net: Net):
-    samples = np.loadtxt("data/testing.txt", dtype=np.float32)
-    inputs = torch.tensor(samples[:, :4], requires_grad=False)
+    samples = np.loadtxt("data/testing_v2.txt", dtype=np.float32)
+    inputs = torch.tensor(samples[:, [0, 1, [: 9:]], requires_grad=False)
     outputs = torch.tensor(samples[:, -2:], requires_grad=False)
 
     criterion = nn.MSELoss()
@@ -36,7 +36,7 @@ def test(net: Net):
 
 
 def train(net: Net):
-    samples = np.loadtxt("data/training.txt", dtype=np.float32)
+    samples = np.loadtxt("data/training_v2.txt", dtype=np.float32)
     inputs = torch.tensor(samples[:, :4], requires_grad=True)
     outputs = torch.tensor(samples[:, -2:], requires_grad=True)
 

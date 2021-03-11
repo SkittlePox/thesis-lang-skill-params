@@ -4,7 +4,7 @@ from sklearn import manifold
 
 
 def plot_manifold(samples: int = 2000, neighbors: int = 10):
-    data = np.loadtxt("data/training.txt")[:samples]
+    data = np.loadtxt("data/training_v2.txt")[:samples]
     fig = plt.figure(figsize=(12, 6))
 
     delta_y = data[:, 4:6] - data[:, :2]
@@ -20,12 +20,12 @@ def plot_manifold(samples: int = 2000, neighbors: int = 10):
 
     ax = fig.add_subplot(121, projection='3d')
     ax.set_title("ISOMAP run with 3 components")
-    ax.scatter(manifold_3d[:, 0], manifold_3d[:, 1], manifold_3d[:, 2], color=cmap)
+    ax.scatter(manifold_3d[:, 0], manifold_3d[:, 1], manifold_3d[:, 2])#, c=cmap)
     ax.legend(["faster: red\nslower: orange\nhigher: blue\n lower: cyan"])
 
     ax = fig.add_subplot(122)
     ax.set_title("ISOMAP run with 2 components")
-    ax.scatter(manifold_2d[:, 0], manifold_2d[:, 1], color=cmap)
+    ax.scatter(manifold_2d[:, 0], manifold_2d[:, 1])#, c=cmap)
 
     plt.show()
 
