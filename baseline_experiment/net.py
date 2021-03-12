@@ -4,13 +4,15 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+import matplotlib.pyplot as plt
+
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.dense1 = nn.Linear(in_features=770, out_features=10)
+        self.dense1 = nn.Linear(in_features=4, out_features=10)
         self.dense2 = nn.Linear(in_features=10, out_features=10)
         self.dense3 = nn.Linear(in_features=10, out_features=2)
 
@@ -24,8 +26,8 @@ class Net(nn.Module):
 
 
 def test(net: Net):
-    samples = np.loadtxt("data/testing_v2.txt", dtype=np.float32)
-    inputs = torch.tensor(samples[:, [0, 1, [: 9:]], requires_grad=False)
+    samples = np.loadtxt("data/testing_normed_v3.txt", dtype=np.float32)
+    inputs = torch.tensor(samples[:, :4], requires_grad=False)
     outputs = torch.tensor(samples[:, -2:], requires_grad=False)
 
     criterion = nn.MSELoss()
@@ -33,24 +35,31 @@ def test(net: Net):
     predictions = net.forward(inputs)
     loss = criterion(predictions, outputs)
     print(f"Testing Loss: {loss}")
+    return loss
 
 
 def train(net: Net):
-    samples = np.loadtxt("data/training_v2.txt", dtype=np.float32)
+    samples = np.loadtxt("data/training_normed_v3.txt", dtype=np.float32)
     inputs = torch.tensor(samples[:, :4], requires_grad=True)
     outputs = torch.tensor(samples[:, -2:], requires_grad=True)
 
     criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.1)
 
-    for _ in range(1000):
+    training_loss = []
+    testing_loss = []
+
+    for _ in range(200):
         optimizer.zero_grad()
         predictions = net.forward(inputs)
         loss = criterion(predictions, outputs)
         loss.backward()
         optimizer.step()
+        training_loss.append(loss)
         print(f"Training Loss: {loss}")
-        test(net)
+        testing_loss.append(test(net))
+
+    return np.array(training_loss), np.array(testing_loss)
 
 
 def denormalize(predictions: torch.Tensor, mu: np.array, sigma2: np.array) -> np.array:
@@ -66,11 +75,23 @@ def normalize(samples: np.array, mu: np.array, sigma2: np.array) -> np.array:
     return torch.tensor(samples)
 
 
+def plot_loss(training_loss: np.array, testing_loss: np.array):
+    plt.plot(list(range(len(testing_loss))), testing_loss, label='Testing Loss')
+    plt.plot(list(range(len(training_loss))), training_loss, label='Training Loss')
+    plt.xlabel('Training Iterations')
+    plt.ylabel('Loss')
+    plt.title("Training and Testing Loss")
+    plt.legend()
+    plt.show()
+
+
 def main():
     net = Net()
     test(net)
-    train(net)
+    training_loss, testing_loss = train(net)
     torch.save(net.state_dict(), "data/model.pt")
+    test(net)
+    plot_loss(training_loss, testing_loss)
 
 
 def repl():
@@ -91,5 +112,5 @@ def repl():
 
 
 if __name__ == "__main__":
-    # main()
-    repl()
+    main()
+    # repl()

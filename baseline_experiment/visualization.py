@@ -4,13 +4,13 @@ from sklearn import manifold
 
 
 def plot_manifold(samples: int = 2000, neighbors: int = 10):
-    data = np.loadtxt("data/training_v2.txt")[:samples]
+    y = np.loadtxt("data/training_v3.txt")[:samples]
     fig = plt.figure(figsize=(12, 6))
 
-    delta_y = data[:, 4:6] - data[:, :2]
-    y = np.hstack((data[:, :4], delta_y))
+    # delta_y = data[:, 4:6] - data[:, :2]
+    # y = np.hstack((data[:, :4], delta_y))
 
-    cmap = get_cmap(data)
+    # cmap = get_cmap(data)
 
     isomap_3d = manifold.Isomap(n_neighbors=neighbors, n_components=3)
     isomap_2d = manifold.Isomap(n_neighbors=neighbors, n_components=2)
@@ -31,19 +31,19 @@ def plot_manifold(samples: int = 2000, neighbors: int = 10):
 
 
 def plot_manifold_vectors(samples: int = 2000):
-    data = np.loadtxt("data/training.txt")[:samples]
+    data = np.loadtxt("data/training_v3.txt")[:samples]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_xlabel('Vx')
-    ax.set_ylabel('Vy')
-    ax.set_title('Parameter Manifold')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Y-Position')
+    ax.set_title('Adverb Mappings in Task Parameter Space')
 
-    delta_y = data[:, 4:6] - data[:, :2]
+    # delta_y = data[:, 4:6] - data[:, :2]
 
     cmap = get_cmap(data)
 
-    q = plt.quiver(data[:, 0], data[:, 1], delta_y[:, 0], delta_y[:, 1], color=cmap, scale=150, width=0.002, minshaft=0.5)
+    q = plt.quiver(data[:, 2], data[:, 3], data[:, 4], data[:, 5], scale=200, width=0.003, minshaft=1)
     ax.quiverkey(q, X=1.15, Y=0.5, U=5, label="faster: red\nslower: orange\nhigher: blue\n lower: cyan", labelpos="S")
     plt.show()
 
@@ -75,8 +75,8 @@ def get_cmap(data: np.array) -> np.array:
 
 
 def main():
-    # plot_manifold_vectors()
-    plot_manifold()
+    plot_manifold_vectors()
+    # plot_manifold()
 
 
 if __name__ == "__main__":
