@@ -32,6 +32,15 @@ def plot_manifold(samples: int = 2000, neighbors: int = 10):
 
 def plot_manifold_vectors(samples: int = 2000):
     data = np.loadtxt("data/training_v3.txt")[:samples]
+    data_normed = np.loadtxt("data/training_normed_v3.txt")[:samples]
+
+    fdata = []
+
+    for i in range(samples):
+        if data_normed[i][0] < 0 and abs(data_normed[i][1]) < 0.2:
+            fdata.append(data[i])
+
+    data = np.array(fdata)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -41,10 +50,10 @@ def plot_manifold_vectors(samples: int = 2000):
 
     # delta_y = data[:, 4:6] - data[:, :2]
 
-    cmap = get_cmap(data)
+    # cmap = get_cmap(data)
 
-    q = plt.quiver(data[:, 2], data[:, 3], data[:, 4], data[:, 5], scale=200, width=0.003, minshaft=1)
-    ax.quiverkey(q, X=1.15, Y=0.5, U=5, label="faster: red\nslower: orange\nhigher: blue\n lower: cyan", labelpos="S")
+    q = plt.quiver(data[:, 2], data[:, 3], data[:, 4], data[:, 5], angles='xy', scale_units='xy', scale=4)#, scale=200, width=0.005, minshaft=0.5, units='xy')
+    # ax.quiverkey(q, X=1.15, Y=0.5, U=5, label="faster: red\nslower: orange\nhigher: blue\n lower: cyan", labelpos="S")
     plt.show()
 
 

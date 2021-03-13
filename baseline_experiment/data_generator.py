@@ -27,8 +27,6 @@ def label_ball_launch(tau: np.array, delta_tau: np.array):
     t_val = 0.0
     y_val = 0.0
 
-    #TODO Go back to known adverb axes, bake into assumptions
-
     time_diff = delta_tau[0]
     y_diff = delta_tau[1]
 
