@@ -136,9 +136,9 @@ def normalize_samples(samples: [], mu: np.array, sigma2: np.array) -> []:
 
 
 def main():
-    data_label = "v3"
-    samples_train = generate_samples(2000, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
-    samples_test = generate_samples(200, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    data_label = "v4"
+    samples_train = generate_samples(100, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    samples_test = generate_samples(2000, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
 
     np.savetxt(f"data/training_{data_label}.txt", samples_train)
     np.savetxt(f"data/testing_{data_label}.txt", samples_test)
