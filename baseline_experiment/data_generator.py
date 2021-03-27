@@ -28,6 +28,7 @@ def label_ball_launch_nonlinear(tau: np.array, delta_tau: np.array):
     y_val = 0.0
 
     time = (-1 * tau[0]) + 4
+
     y = tau[1] + 15
 
     time_diff = delta_tau[0]
