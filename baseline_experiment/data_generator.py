@@ -20,6 +20,56 @@ def ball_launch(tau: np.array) -> np.array:
     return theta
 
 
+def label_ball_launch_nonlinear(tau: np.array, delta_tau: np.array):
+    time_label = ""
+    y_label = ""
+
+    t_val = 0.0
+    y_val = 0.0
+
+    time = (-1 * tau[0]) + 4
+    y = tau[1] + 15
+
+    time_diff = delta_tau[0]
+    y_diff = delta_tau[1]
+
+    if abs(time_diff) > 0.05 + time * 0.15:
+        if abs(time_diff) >= 1.2 + time * 0.17:
+            t_mod = "far "
+            t_val = 3.0
+        elif abs(time_diff) >= 0.6 + time * 0.15:
+            t_mod = "much "
+            t_val = 2.0
+        else:
+            t_mod = ""
+            t_val = 1.0
+
+        if time_diff >= 0:
+            time_label += t_mod + "slower"
+            t_val *= -1.0
+        else:
+            time_label += t_mod + "faster"
+
+    if abs(y_diff) > 0.5 + y * 0.15:
+        if abs(y_diff) >= 12 + y * 0.17:
+            y_mod = "far "
+            y_val = 3.0
+        elif abs(y_diff) >= 6 + y * 0.15:
+            y_mod = "much "
+            y_val = 2.0
+        else:
+            y_mod = ""
+            y_val = 1.0
+
+        if y_diff >= 0:
+            y_label += y_mod + "higher"
+        else:
+            y_label += y_mod + "lower"
+            y_val *= -1.0
+
+    return np.array([t_val, y_val])
+
+
 def label_ball_launch(tau: np.array, delta_tau: np.array):
     time_label = ""
     y_label = ""
@@ -134,11 +184,10 @@ def normalize_samples(samples: [], mu: np.array, sigma2: np.array) -> []:
     # new_samples = np.array([np.concatenate((i, o)) for i, o in zip(inputs, outputs)])
     # return new_samples
 
-
 def main():
-    data_label = "v4"
-    samples_train = generate_samples(100, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
-    samples_test = generate_samples(2000, ball_launch, label_ball_launch, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    data_label = "v5"
+    samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    samples_test = generate_samples(2000, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
 
     np.savetxt(f"data/training_{data_label}.txt", samples_train)
     np.savetxt(f"data/testing_{data_label}.txt", samples_test)

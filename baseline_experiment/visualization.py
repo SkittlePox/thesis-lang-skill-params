@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import manifold
+from sklearn.preprocessing import normalize
 
 
 def plot_manifold(samples: int = 2000, neighbors: int = 10):
@@ -83,10 +84,50 @@ def get_cmap(data: np.array) -> np.array:
     return cmap
 
 
-def main():
-    plot_manifold_vectors()
-    # plot_manifold()
+def plot_embeddings(samples: int):
+    data = np.loadtxt("data/testing_v5.txt")[:samples]
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Faster              Slower')
+    ax.set_ylabel('Lower              Higher')
+    ax.set_title('Distribution of Adverb Labelling (s=2000)')
+
+    heatmap = np.zeros((7,7))
+
+
+
+    for d in data:
+        heatmap[int(d[1])+3][int(d[0])+3] += 1
+        # heatmap[0][int(d[0]) + 3] += 1
+        # heatmap[int(d[1])+3][0] += 1
+
+    # heatmap = normalize(heatmap, norm='l1', axis=0)
+    heatmap = heatmap/samples
+    heatmap = np.around(heatmap, decimals=3)
+
+    labels = ["-3", "-2", "-1", "0", "1", "2", "3"]
+
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_yticks(np.arange(len(labels)))
+
+    # ax.scatter(data[:, 0], data[:, 1])
+
+    for i in range(len(labels)):
+        for j in range(len(labels)):
+            text = ax.text(j, i, heatmap[i, j],
+                           ha="center", va="center", color="w")
+
+    ax.set_xticklabels(labels)
+    labels.reverse()
+    ax.set_yticklabels(labels)
+    im = ax.imshow(heatmap)
+    plt.show()
+
+def main():
+    # plot_manifold_vectors()
+    # plot_manifold()
+    plot_embeddings(2000)
 
 if __name__ == "__main__":
     main()
