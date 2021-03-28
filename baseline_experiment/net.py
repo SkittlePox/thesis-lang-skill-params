@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.dense1 = nn.Linear(in_features=4, out_features=10)
-        self.dense2 = nn.Linear(in_features=10, out_features=10)
+        self.dense1 = nn.Linear(in_features=4, out_features=25)
+        self.dense2 = nn.Linear(in_features=25, out_features=10)
         self.dense3 = nn.Linear(in_features=10, out_features=2)
 
     def forward(self, x):
@@ -26,7 +26,7 @@ class Net(nn.Module):
 
 
 def test(net: Net):
-    samples = np.loadtxt("data/testing_normed_v5.txt", dtype=np.float32)
+    samples = np.loadtxt("data/testing_normed_v7.txt", dtype=np.float32)
     inputs = torch.tensor(samples[:, :4], requires_grad=False)
     outputs = torch.tensor(samples[:, -2:], requires_grad=False)
 
@@ -39,7 +39,7 @@ def test(net: Net):
 
 
 def train(net: Net):
-    samples = np.loadtxt("data/training_normed_v5.txt", dtype=np.float32)[:30]
+    samples = np.loadtxt("data/training_normed_v7.txt", dtype=np.float32)[:30]
     inputs = torch.tensor(samples[:, :4], requires_grad=True)
     outputs = torch.tensor(samples[:, -2:], requires_grad=True)
 

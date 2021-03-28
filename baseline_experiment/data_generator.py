@@ -185,15 +185,44 @@ def normalize_samples(samples: [], mu: np.array, sigma2: np.array) -> []:
     # new_samples = np.array([np.concatenate((i, o)) for i, o in zip(inputs, outputs)])
     # return new_samples
 
+
+def holdout_samples(samples: [], tau_lower: [], tau_upper: []) -> []:
+    holdin = []
+    holdout = []
+
+    for s in samples:
+        # print(s[2:4])
+        if np.greater(s[2:4], tau_lower).all() and np.less(s[2:4], tau_upper).all():
+            holdout.append(s)
+        else:
+            holdin.append(s)
+
+    print(f"holdout: {len(holdout)}      holdin: {len(holdin)}")
+
+    return holdout, holdin
+
+
 def main():
-    data_label = "v5"
-    samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    data_label = "v7"
+    # samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
     samples_test = generate_samples(2000, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+
+    samples = generate_samples(2500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+
+    holdout, holdin = holdout_samples(samples, np.array([2.0, -7.0]), np.array([3.0, 7.0]))
+
+    samples_train = holdin[:500]
+    # samples_test = holdout[:200]
+
+    # samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1.75, -7]),
+    #                                  task_max=np.array([3.25, 7]))
+    # samples_test = generate_samples(2000, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]),
+    #                                 task_max=np.array([4, 15]))
 
     np.savetxt(f"data/training_{data_label}.txt", samples_train)
     np.savetxt(f"data/testing_{data_label}.txt", samples_test)
 
-    mu, sigma2 = calculate_normalization_values(samples_train)
+    mu, sigma2 = calculate_normalization_values(samples_test)
 
     np.savetxt(f"data/mu_{data_label}.txt", mu)
     np.savetxt(f"data/sigma2_{data_label}.txt", sigma2)
