@@ -85,7 +85,7 @@ def get_cmap(data: np.array) -> np.array:
 
 
 def plot_embeddings(samples: int):
-    data = np.loadtxt("data/testing_v5.txt")[:samples]
+    data = np.loadtxt("data/testing_v9_standard.txt")[:samples]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -104,7 +104,7 @@ def plot_embeddings(samples: int):
 
     # heatmap = normalize(heatmap, norm='l1', axis=0)
     heatmap = heatmap/samples
-    heatmap = np.around(heatmap, decimals=3)
+    trunc_heatmap = np.around(heatmap, decimals=3)
 
     labels = ["-3", "-2", "-1", "0", "1", "2", "3"]
 
@@ -115,7 +115,7 @@ def plot_embeddings(samples: int):
 
     for i in range(len(labels)):
         for j in range(len(labels)):
-            text = ax.text(j, i, heatmap[i, j],
+            text = ax.text(j, i, trunc_heatmap[i, j],
                            ha="center", va="center", color="w")
 
     ax.set_xticklabels(labels)

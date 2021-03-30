@@ -3,6 +3,8 @@ from numpy.random import default_rng
 from collections.abc import Callable
 from sentence_transformers import SentenceTransformer
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+import pickle
 
 rng = default_rng()
 
@@ -34,7 +36,7 @@ def label_ball_launch_nonlinear(tau: np.array, delta_tau: np.array):
     time_diff = delta_tau[0]
     y_diff = delta_tau[1]
 
-    if abs(time_diff) > 0.05 + time * 0.15:
+    if abs(time_diff) > 0.05 + time * 0.10:
         if abs(time_diff) >= 1.2 + time * 0.17:
             t_mod = "far "
             t_val = 3.0
@@ -51,7 +53,7 @@ def label_ball_launch_nonlinear(tau: np.array, delta_tau: np.array):
         else:
             time_label += t_mod + "faster"
 
-    if abs(y_diff) > 0.5 + y * 0.15:
+    if abs(y_diff) > 0.5 + y * 0.10:
         if abs(y_diff) >= 12 + y * 0.17:
             y_mod = "far "
             y_val = 3.0
@@ -155,6 +157,7 @@ def generate_samples(count: int, skill: Callable, labeler: Callable, task_min: [
 
     # print(np.shape(samples))
     # print(labels)
+    # t_val, y_val, time, y_pos, time2, y_pos2
     samples = np.hstack([labels, samples])
     return samples
 
@@ -203,15 +206,19 @@ def holdout_samples(samples: [], tau_lower: [], tau_upper: []) -> []:
 
 
 def main():
-    data_label = "v7"
-    # samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    data_label = "v9_standard"
+    samples_train = generate_samples(2000, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
     samples_test = generate_samples(2000, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
 
-    samples = generate_samples(2500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    # V7 - Interpolate
+    # samples = generate_samples(2500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1, -15]), task_max=np.array([4, 15]))
+    #
+    # holdout, holdin = holdout_samples(samples, np.array([2.0, -7.0]), np.array([3.0, 7.0]))
+    #
+    # samples_train = holdin[:500]
 
-    holdout, holdin = holdout_samples(samples, np.array([2.0, -7.0]), np.array([3.0, 7.0]))
 
-    samples_train = holdin[:500]
+    # V6 - Extrapolate
     # samples_test = holdout[:200]
 
     # samples_train = generate_samples(500, ball_launch, label_ball_launch_nonlinear, task_min=np.array([1.75, -7]),
@@ -222,16 +229,28 @@ def main():
     np.savetxt(f"data/training_{data_label}.txt", samples_train)
     np.savetxt(f"data/testing_{data_label}.txt", samples_test)
 
-    mu, sigma2 = calculate_normalization_values(samples_test)
+    scaler = StandardScaler()
+    samples_train_normed = scaler.fit_transform(samples_train)
+    samples_test_normed = scaler.transform(samples_test)
 
-    np.savetxt(f"data/mu_{data_label}.txt", mu)
-    np.savetxt(f"data/sigma2_{data_label}.txt", sigma2)
+    np.savetxt(f"data/training_normed_{data_label}.txt", samples_train_normed)
+    np.savetxt(f"data/testing_normed_{data_label}.txt", samples_test_normed)
 
-    new_samples_train = normalize_samples(samples_train, mu, sigma2)
-    new_samples_test = normalize_samples(samples_test, mu, sigma2)
+    pickle.dump(scaler, open(f"data/scaler_{data_label}.p", 'wb'))
 
-    np.savetxt(f"data/training_normed_{data_label}.txt", new_samples_train)
-    np.savetxt(f"data/testing_normed_{data_label}.txt", new_samples_test)
+    # mu, sigma2 = calculate_normalization_values(samples_train)
+    #
+    # np.savetxt(f"data/mu_{data_label}.txt", mu)
+    # np.savetxt(f"data/sigma2_{data_label}.txt", sigma2)
+    #
+    # new_samples_train = normalize_samples(samples_train, mu, sigma2)
+    # new_samples_test = normalize_samples(samples_test, mu, sigma2)
+    #
+    # np.savetxt(f"data/training_normed_{data_label}.txt", new_samples_train)
+    # np.savetxt(f"data/testing_normed_{data_label}.txt", new_samples_test)
+
+    # normed_training = sklearn.preprocessing.normalize(samples_train)
+    # np.savetxt(f"data/training_sk_normed_{data_label}.txt", normed_train)
 
 
 if __name__ == "__main__":

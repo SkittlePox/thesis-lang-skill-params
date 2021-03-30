@@ -26,7 +26,7 @@ class Net(nn.Module):
 
 
 def test(net: Net):
-    samples = np.loadtxt("data/testing_normed_v7.txt", dtype=np.float32)
+    samples = np.loadtxt("data/testing_normed_v9_standard.txt", dtype=np.float32)
     inputs = torch.tensor(samples[:, :4], requires_grad=False)
     outputs = torch.tensor(samples[:, -2:], requires_grad=False)
 
@@ -39,7 +39,7 @@ def test(net: Net):
 
 
 def train(net: Net):
-    samples = np.loadtxt("data/training_normed_v7.txt", dtype=np.float32)[:30]
+    samples = np.loadtxt("data/training_normed_v9_standard.txt", dtype=np.float32)[:50]
     inputs = torch.tensor(samples[:, :4], requires_grad=True)
     outputs = torch.tensor(samples[:, -2:], requires_grad=True)
 
