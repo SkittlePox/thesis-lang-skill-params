@@ -124,10 +124,71 @@ def plot_embeddings(samples: int):
     im = ax.imshow(heatmap)
     plt.show()
 
+
+def plot_reward_contour():
+    net_steps = np.array([[  1.44922374, -13.95353649],[  3.37205507,   4.9808529 ],[  3.73233298,  14.7919342 ]])
+    pi2_steps = np.array([[ 3.73233298, 14.7919342 ],
+ [ 3.47278675, 15.21327113]])
+    pure_steps = np.array([[  1.44922374, -13.95353649],
+ [  2.85249509,  -3.92525738],
+ [  3.78457802,   4.53001243],
+ [  3.93570012,   7.83859085],
+ [  3.76901738,  10.96108929],
+ [  3.83931687,  12.86365042],
+ [  3.68409637,  14.34141549],
+[  3.4,  14.5]]
+)
+
+    def step_to_arrows(arr):
+        arrows = []
+        for i in range(1, len(arr)):
+            arrows.append(arr[i]-arr[i-1])
+        return np.array(arrows)
+
+    net_arrows = step_to_arrows(net_steps)
+    pi2_arrows = step_to_arrows(pi2_steps)
+    pure_arrows = step_to_arrows(pure_steps)
+
+    goal = [3.5, 15]
+    delta = 0.025
+    x = np.arange(1.0, 5.0, delta)
+    y = np.arange(-15.0, 17.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z = (np.square(goal[0]-X) + np.square((goal[1]-Y)/7))
+    fig, ax = plt.subplots()
+    CS = ax.contour(X, Y, Z, levels=20)
+    CS2 = ax.contour(X, Y, Z, levels=[0.025], colors='red', alpha=0.7)
+    ax.clabel(CS, inline=True, fontsize=10)
+
+
+
+    plt.quiver(net_steps[:-1, 0], net_steps[:-1, 1], net_arrows[:, 0],
+               net_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
+               alpha=0.75, color='green', width=0.01,
+               headwidth=2.5, headaxislength=4, headlength=4.5)
+    plt.quiver(pi2_steps[:-1, 0], pi2_steps[:-1, 1], pi2_arrows[:, 0],
+               pi2_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
+               alpha=0.75, color='blue', width=0.01,
+               headwidth=2.5, headaxislength=4, headlength=4.5)
+    plt.quiver(pure_steps[:-1, 0], pure_steps[:-1, 1], pure_arrows[:, 0],
+               pure_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
+               alpha=0.7, color='k', width=0.01,
+               headwidth=2.5, headaxislength=4, headlength=4.5)
+
+    ax.scatter(1.44922374, -13.95353649)
+    ax.scatter(3.5, 15, color='red', alpha=0.7)
+
+    ax.set_title('Paths from [1.45, -14] to [3.5, 15]')
+    ax.set_xlabel('Time Parameter')
+    ax.set_ylabel('Y-Position Parameter')
+    plt.show()
+
+
 def main():
     # plot_manifold_vectors()
     # plot_manifold()
     plot_embeddings(2000)
+    # plot_reward_contour()
 
 if __name__ == "__main__":
     main()

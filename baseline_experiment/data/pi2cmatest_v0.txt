@@ -1,0 +1,64 @@
+Average number of steps:
+        Pure PI2CMA: 155.02032520325204
+        PI2CMA with Net: 40.017615176151764
+                Avg Net Steps: 4.326558265582656
+                Avg PI2CMA Steps: 35.6910569105691
+        One Net instruction accounts for 27.580645161290327 steps
+Percent Gained Convergences: 18.9%
+Percent Lost Convergences: 6.1%
+
+Run on 1000 examples
+
+---------------
+
+Average number of steps:
+        Pure PI2CMA: 161.90856313497824
+        PI2CMA with Net: 36.56458635703919
+                Avg Net Steps: 3.2119013062409287
+                Avg PI2CMA Steps: 33.35268505079826
+        One Net instruction accounts for 40.024853140533224 steps
+Percent Gained Convergences: 24.9%
+Percent Lost Convergences: 4.7%
+
+Run on 1000 examples
+
+-----------------
+
+Average number of steps:
+        Pure PI2CMA: 99.47882736156352
+        PI2CMA with Net: 44.31161780673181
+                Avg Net Steps: 3.3181324647122694
+                Avg PI2CMA Steps: 40.99348534201955
+        One Net instruction accounts for 17.62598167539267 samples
+Percent Gained Convergences: 2.1%
+Percent Lost Convergences: 5.800000000000001%
+
+
+Run on 1000 examples
+
+sig2 = np.array([3, 15])
+    sig2_hybrid = np.array([1.5, 7])
+
+------------------
+Average number of steps:
+        Pure PI2CMA: 78.44984802431611
+        PI2CMA with Net: 19.728470111448836
+                Avg Net Steps: 2.0081053698074975
+                Avg PI2CMA Steps: 17.720364741641337
+        One Net instruction accounts for 30.242179616548942 samples
+Percent Gained Convergences: 1.0999999999999999%
+Percent Lost Convergences: 0.2%
+
+
+-----------
+
+[[  1.44922374 -13.95353649]
+ [  3.37205507   4.9808529 ]
+ [  3.73233298  14.7919342 ]]
+[[ 3.73233298 14.7919342 ]
+ [ 3.47278675 15.21327113]]
+[[  1.44922374 -13.95353649]
+ [  2.75105777   5.67791301]
+ [  3.36865693  13.64523538]
+ [  3.07151453  16.00384135]
+ [  3.43675427  15.64777073]]
