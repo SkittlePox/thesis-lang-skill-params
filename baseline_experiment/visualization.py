@@ -157,9 +157,10 @@ def plot_reward_contour():
     Z = (np.square(goal[0]-X) + np.square((goal[1]-Y)/7))
     fig, ax = plt.subplots()
     CS = ax.contour(X, Y, Z, levels=20)
-    CS2 = ax.contour(X, Y, Z, levels=[0.025], colors='red', alpha=0.7)
+    CS2 = ax.contour(X, Y, Z, levels=[0.025], colors='red', alpha=0.6)
     ax.clabel(CS, inline=True, fontsize=10)
-
+    ax.scatter(1.44922374, -13.95353649)
+    ax.scatter(3.5, 15, color='red', alpha=0.6)
 
 
     plt.quiver(net_steps[:-1, 0], net_steps[:-1, 1], net_arrows[:, 0],
@@ -169,17 +170,14 @@ def plot_reward_contour():
                label='Adverb-Skill Grounding')
     plt.quiver(pi2_steps[:-1, 0], pi2_steps[:-1, 1], pi2_arrows[:, 0],
                pi2_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
-               alpha=0.75, color='blue', width=0.01,
-               headwidth=2.5, headaxislength=4, headlength=4.5,
-               label='PI2-CMA')
+               alpha=0.75, color='k', width=0.01,
+               headwidth=2.5, headaxislength=4, headlength=4.5)
     plt.quiver(pure_steps[:-1, 0], pure_steps[:-1, 1], pure_arrows[:, 0],
                pure_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
                alpha=0.7, color='k', width=0.01,
                headwidth=2.5, headaxislength=4, headlength=4.5,
                label='PI2-CMA')
 
-    ax.scatter(1.44922374, -13.95353649)
-    ax.scatter(3.5, 15, color='red', alpha=0.7)
 
     ax.legend()
     ax.set_title('Paths from [1.45, -14] to [3.5, 15]')
