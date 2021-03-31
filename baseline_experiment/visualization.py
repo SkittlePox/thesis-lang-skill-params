@@ -165,19 +165,23 @@ def plot_reward_contour():
     plt.quiver(net_steps[:-1, 0], net_steps[:-1, 1], net_arrows[:, 0],
                net_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
                alpha=0.75, color='green', width=0.01,
-               headwidth=2.5, headaxislength=4, headlength=4.5)
+               headwidth=2.5, headaxislength=4, headlength=4.5,
+               label='Adverb-Skill Grounding')
     plt.quiver(pi2_steps[:-1, 0], pi2_steps[:-1, 1], pi2_arrows[:, 0],
                pi2_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
                alpha=0.75, color='blue', width=0.01,
-               headwidth=2.5, headaxislength=4, headlength=4.5)
+               headwidth=2.5, headaxislength=4, headlength=4.5,
+               label='PI2-CMA')
     plt.quiver(pure_steps[:-1, 0], pure_steps[:-1, 1], pure_arrows[:, 0],
                pure_arrows[:, 1], scale=1, scale_units='xy', angles='xy',
                alpha=0.7, color='k', width=0.01,
-               headwidth=2.5, headaxislength=4, headlength=4.5)
+               headwidth=2.5, headaxislength=4, headlength=4.5,
+               label='PI2-CMA')
 
     ax.scatter(1.44922374, -13.95353649)
     ax.scatter(3.5, 15, color='red', alpha=0.7)
 
+    ax.legend()
     ax.set_title('Paths from [1.45, -14] to [3.5, 15]')
     ax.set_xlabel('Time Parameter')
     ax.set_ylabel('Y-Position Parameter')
@@ -187,8 +191,8 @@ def plot_reward_contour():
 def main():
     # plot_manifold_vectors()
     # plot_manifold()
-    plot_embeddings(2000)
-    # plot_reward_contour()
+    # plot_embeddings(2000)
+    plot_reward_contour()
 
 if __name__ == "__main__":
     main()
