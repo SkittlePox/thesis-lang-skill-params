@@ -10,13 +10,16 @@ MODEL_XML_PATH = os.path.join('fetch', 'slide.xml')
 
 
 class FetchSlideEnvV2(fetch_env.FetchEnv, utils.EzPickle):
-    def __init__(self, reward_type='dense'):
+    def __init__(self, reward_type='dense', goal=None):
         initial_qpos = {
-            'robot0:slide0': -0.05,
+            'robot0:slide0': -0.0,
             'robot0:slide1': 0.48,
-            'robot0:slide2': 0.1,
+            'robot0:slide2': -0.15,
+            'robot0:shoulder_lift_joint': -0.7,
+            'robot0:elbow_flex_joint': 0.6,
             'object0:joint': [1.7, 1.1, 0.41, 1., 0., 0., 0.],
         }
+        self.goal = goal
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=True, block_gripper=True, n_substeps=20,
             gripper_extra_height=-0.02, target_in_the_air=False, target_offset=np.array([0.65, 0.0, 0.0]),
@@ -27,9 +30,9 @@ class FetchSlideEnvV2(fetch_env.FetchEnv, utils.EzPickle):
     def _reset_sim(self):
         self.sim.set_state(self.initial_state)
 
-        # Randomize start position of object.
+        # Randomize start position of object. (We are not doing this)
         if self.has_object:
-            object_xpos = self.initial_gripper_xpos[:2] + np.array([0.125, 0.])
+            object_xpos = self.initial_gripper_xpos[:2] + np.array([0.2, 0.])
             # while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
             #     object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range,
             #                                                                          size=2)
@@ -43,11 +46,17 @@ class FetchSlideEnvV2(fetch_env.FetchEnv, utils.EzPickle):
 
     def _sample_goal(self):
         if self.has_object:
+            print(self.initial_gripper_xpos[:3])
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             # goal[0] = self.initial_gripper_xpos[0]
-            goal = np.array([1.7, 0.77455443, 0.41401894])
-            # goal += self.target_offset
+            goal += self.target_offset
             goal[2] = self.height_offset
+
+            print(goal)
+
+            if self.goal is not None:
+                goal = self.goal
+
             if self.target_in_the_air and self.np_random.uniform() < 0.5:
                 goal[2] += self.np_random.uniform(0, 0.45)
         else:
