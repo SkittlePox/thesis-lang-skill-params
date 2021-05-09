@@ -1,4 +1,7 @@
+import os
+
 import gym
+import numpy
 import skills_kin
 import torch
 from skills_kin.utils import dmps_from_scratch, fit_dmps, run_gym_episode
@@ -11,7 +14,7 @@ import pickle
 rng = np.random.default_rng()
 
 # env = FetchSlideEnvV2(goal=np.array([1.489, 0.57, 0.41401894]))
-DEFAULT_DIR = 'test1'
+DEFAULT_DIR = 'agents/default_dir'
 
 
 def run_experiment(env, agent, vis=False):
@@ -28,6 +31,16 @@ def run_experiment(env, agent, vis=False):
         action = agent.act(i)
         obs = env.step(action)
         print(obs)
+
+
+def get_achieved_goal(env, agent):
+    agent.reset()
+    env.reset()
+
+    for i in range(70):
+        action = agent.act(i)
+        obs = env.step(action)
+    return obs[0]['achieved_goal']
 
 
 # def run_experiment():
@@ -58,7 +71,12 @@ def run_experiment(env, agent, vis=False):
 #         print(obs)
 
 
-def train_dmp_agent(env):
+def train_dmp_agent(env, name=DEFAULT_DIR):
+    try:
+        os.mkdir(name)
+    except FileExistsError:
+        pass
+
     demo_data = [[3.0, 0.0, 0.0, 0.0]] * 69
     demo_data.append([3.1, 0.1, 0.1, 0.1])
     demo_data = np.array(demo_data)
@@ -85,16 +103,21 @@ def train_dmp_agent(env):
     agent, episode_rewards, eval_rewards = run_pi2cma(env,
                                                       agent,
                                                       run_gym_episode,
-                                                      30,
+                                                      15,
                                                       15,
                                                       70,
                                                       20,
                                                       sigma,
                                                       True,
                                                       True,
-                                                      name='test1',
+                                                      name=name,
                                                       vis=False)
+    # print(episode_rewards)
+    # print(eval_rewards)
     agent.reset()
+    # filehandler_env = open('%s/env.obj' % name, 'wb')
+    # pickle.dump(env, filehandler_env)
+    return agent
     # run_experiment_with_agent(agent)
 
 
@@ -106,17 +129,18 @@ def generate_random_goal():
 
 def run_random_experiments(count=1):
     # goal = np.array([1.489, 0.57, 0.41401894])  # This is the object goal position
-    agent = get_pickled_agent()
+    agent = get_pickled_agent_env()[0]
     for i in range(count):
         env = FetchSlideEnvV2(goal=np.array([1.489, 0.57, 0.41401894]))
         run_experiment(env, agent)
 
 
-def get_pickled_agent(fn=None):
+def get_pickled_agent_env(fn=None):
     if fn is None:
         fn = DEFAULT_DIR
-    fl = open(f'{fn}/agent.obj', 'rb')
-    return pickle.load(fl)
+    fa = open(f'{fn}/agent.obj', 'rb')
+    fe = open(f'{fn}/env.obj', 'rb')
+    return pickle.load(fa), pickle.load(fe)
 
 
 def extract_agent_params(agent):
@@ -130,9 +154,90 @@ def extract_agent_params(agent):
     return params
 
 
+def collect_data(datapoints=1):
+    goals = []
+    params = []
+    for d in range(datapoints):
+        # collect a data point [achieved goal, policy parameters]
+
+        # create a random new goal
+        goal = generate_random_goal()
+
+        # create environment from goal
+        env = FetchSlideEnvV2(goal=goal)
+
+        # train new dmp agent
+        agent = train_dmp_agent(env, name=f'agents/exp1_agent_{d}')
+
+        goals.append(get_achieved_goal(env, agent))
+        params.append(extract_agent_params(agent))
+
+    return np.array(goals), np.array(params)
+        # run_experiment(env, agent, vis=True)
+
+
+
 def main():
-    # run_random_experiments()
-    agent = get_pickled_agent()
+    # fl = open('data/goals_0', 'rb')
+    # goals = pickle.load(fl)
+    # # goals = numpy.array(goals)
+    #
+    # fel = open('data/params_0', 'rb')
+    # params = pickle.load(fel)
+    # # params = numpy.array(params)
+    #
+    # print(goals)
+    # print(params)
+
+
+
+    # goals, params = collect_data(100)
+    #
+    # filehandler_g = open('data/goals_0', 'wb')
+    # pickle.dump(goals, filehandler_g)
+    #
+    # filehandler_p = open('data/params_0', 'wb')
+    # pickle.dump(params, filehandler_p)
+
+
+    # goal = generate_random_goal()
+    # #
+    # # # create environment from goal
+    # env = FetchSlideEnvV2(goal=goal)
+
+    # train new dmp agent
+    # agent = train_dmp_agent(env, name='exp1_agent_0')
+    # run_experiment(env, agent, True)
+
+    # agent, env2 = get_pickled_agent_env('exp1_agent_0')
+    #
+    # p = get_achieved_goal(env2, agent)
+    # print(p)
+
+
+    # run_experiment(env, agent, True)
+    # env.reset()
+    # run_experiment(env, agent, True)
+
+    # params = extract_agent_params(agent)
+    #
+    # assign_weights(agent, params, True, True)
+    # run_experiment(env2, agent, True)
+
+
+
+
+    # goals, params = collect_data()
+    #
+    # env = FetchSlideEnvV2(goal=goals[0])
+    #
+
+    # assign_weights(agent, params[0], True, True)
+    #
+    # run_experiment(env, agent, True)
+
+
+
     # env = FetchSlideEnvV2(goal=np.array([1.489, 0.57, 0.41401894]))
     # run_experiment(env, agent, True)
     # fl = open('test1/agent.obj', 'rb')
@@ -150,10 +255,10 @@ def main():
     # if sample_tau:
     #     agent.tau = w_episode[-1]
 
-    params = extract_agent_params(agent)
-    print(params)
-    # agent2 = Agent _DMP()
-    assign_weights(agent, params, True, True)
+    # params = extract_agent_params(agent)
+    # print(params)
+    # # agent2 = Agent _DMP()
+    # assign_weights(agent, params, True, True)
     # print(params[0])
     # print(params[1])
     # print(params[2])

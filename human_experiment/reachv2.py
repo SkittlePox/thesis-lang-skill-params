@@ -46,13 +46,13 @@ class FetchSlideEnvV2(fetch_env.FetchEnv, utils.EzPickle):
 
     def _sample_goal(self):
         if self.has_object:
-            print(self.initial_gripper_xpos[:3])
+            # print(self.initial_gripper_xpos[:3])
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             # goal[0] = self.initial_gripper_xpos[0]
             goal += self.target_offset
             goal[2] = self.height_offset
 
-            print(goal)
+            # print(goal)
 
             if self.goal is not None:
                 goal = self.goal
