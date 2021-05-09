@@ -1,5 +1,4 @@
 import os
-
 import gym
 import numpy
 import skills_kin
@@ -13,7 +12,6 @@ import pickle
 
 rng = np.random.default_rng()
 
-# env = FetchSlideEnvV2(goal=np.array([1.489, 0.57, 0.41401894]))
 DEFAULT_DIR = 'agents/default_dir'
 
 
@@ -41,6 +39,13 @@ def get_achieved_goal(env, agent):
         action = agent.act(i)
         obs = env.step(action)
     return obs[0]['achieved_goal']
+
+
+def view_agent_runs(name, count):
+    for c in range(count):
+        agent, env = get_pickled_agent_env(f'{name}_{c}')
+
+        run_experiment(env, agent, vis=True)
 
 
 # def run_experiment():
@@ -127,12 +132,12 @@ def generate_random_goal():
     return goal
 
 
-def run_random_experiments(count=1):
+def run_random_experiments(count=10):
     # goal = np.array([1.489, 0.57, 0.41401894])  # This is the object goal position
     agent = get_pickled_agent_env()[0]
     for i in range(count):
-        env = FetchSlideEnvV2(goal=np.array([1.489, 0.57, 0.41401894]))
-        run_experiment(env, agent)
+        env = FetchSlideEnvV2(goal=generate_random_goal())
+        run_experiment(env, agent, True)
 
 
 def get_pickled_agent_env(fn=None):
@@ -154,7 +159,7 @@ def extract_agent_params(agent):
     return params
 
 
-def collect_data(datapoints=1):
+def collect_data(datapoints=1, name=DEFAULT_DIR):
     goals = []
     params = []
     for d in range(datapoints):
@@ -167,17 +172,16 @@ def collect_data(datapoints=1):
         env = FetchSlideEnvV2(goal=goal)
 
         # train new dmp agent
-        agent = train_dmp_agent(env, name=f'agents/exp1_agent_{d}')
+        agent = train_dmp_agent(env, name=f'{name}_{d}')
 
         goals.append(get_achieved_goal(env, agent))
         params.append(extract_agent_params(agent))
 
     return np.array(goals), np.array(params)
-        # run_experiment(env, agent, vis=True)
-
 
 
 def main():
+    pass
     # fl = open('data/goals_0', 'rb')
     # goals = pickle.load(fl)
     # # goals = numpy.array(goals)
@@ -189,16 +193,17 @@ def main():
     # print(goals)
     # print(params)
 
-
-
-    # goals, params = collect_data(100)
+    # goals, params = collect_data(1000, name='agents/exp2_agent')
     #
-    # filehandler_g = open('data/goals_0', 'wb')
+    # filehandler_g = open('data/goals_1', 'wb')
     # pickle.dump(goals, filehandler_g)
     #
-    # filehandler_p = open('data/params_0', 'wb')
+    # filehandler_p = open('data/params_1', 'wb')
     # pickle.dump(params, filehandler_p)
 
+    # view_agent_runs('agents/exp2_agent', 10)
+
+    run_random_experiments()
 
     # goal = generate_random_goal()
     # #
