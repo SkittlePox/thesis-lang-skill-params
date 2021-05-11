@@ -9,10 +9,18 @@ from skills_kin.pi2cma import run_pi2cma, assign_weights
 import numpy as np
 from reachv2 import FetchSlideEnvV2
 import pickle
+from sklearn.preprocessing import StandardScaler
 
 rng = np.random.default_rng()
 
 DEFAULT_DIR = 'agents/default_dir'
+
+
+def run_dumb_env(env):
+    env.reset()
+    for i in range(70):
+        env.render()
+        env.step(env.action_space.sample())
 
 
 def run_experiment(env, agent, vis=False):
@@ -46,34 +54,6 @@ def view_agent_runs(name, count):
         agent, env = get_pickled_agent_env(f'{name}_{c}')
 
         run_experiment(env, agent, vis=True)
-
-
-# def run_experiment():
-#     obs = env.reset()
-#     print(obs)
-#     env.render()
-#
-#     for i in range(1000):
-#         env.render()
-#         # action = env.action_space.sample()
-#         # print(action['desired_goal'])
-#         # print(action)
-#         # if i%50==0:
-#         #   env.reset()
-#         obs = env.step([0, 0, 0, 0])  # take a random action
-#         # print(len(outt))
-#         # print(type(outt))
-#         # print(obs)
-
-
-# def run_experiment_with_agent(agent):
-#     obs = env.reset()
-#     agent.reset()
-#
-#     for i in range(70):
-#         env.render()
-#         obs = env.step(agent.act(i))
-#         print(obs)
 
 
 def train_dmp_agent(env, name=DEFAULT_DIR):
@@ -180,18 +160,90 @@ def collect_data(datapoints=1, name=DEFAULT_DIR):
     return np.array(goals), np.array(params)
 
 
+def experiment1():
+    # See if SVM params achieve goal
+
+    # first see if training params achieve goal
+    datapoint = np.loadtxt('data/train_v0.txt')
+    goal = datapoint[2][:3]
+    params = datapoint[2][3:]
+
+    env = FetchSlideEnvV2(goal=goal)
+    agent, env2 = get_pickled_agent_env('agents/exp1_agent_0')
+    assign_weights(agent, params, True, True)
+
+    run_experiment(env, agent, True)
+
+    # now get svm params
+    params = np.loadtxt('data/params_test_2')
+    # these are normed, need to unnorm
+    # get scaler
+    scl = open('data/scaler_v0.p', 'rb')
+    scaler = pickle.load(scl)
+
+    # pad params
+    params = np.pad(params, (3, 0))
+    params_normed = scaler.inverse_transform(params)
+    params_normed = params_normed[3:] # remove goal
+
+    assign_weights(agent, params_normed, True, True)
+    run_experiment(env, agent, True)
+
+
 def main():
-    pass
-    # fl = open('data/goals_0', 'rb')
-    # goals = pickle.load(fl)
-    # # goals = numpy.array(goals)
+    experiment1()
+    # env = FetchSlideEnvV2(goal=)
     #
-    # fel = open('data/params_0', 'rb')
-    # params = pickle.load(fel)
+    # params = np.loadtxt('data/train_data_normed_v0.txt')
+    #
+    # scl = open('data/scaler_v0.p', 'rb')
+    # scaler = pickle.load(scl)
+    #
+    # print(scaler.inverse_transform(params[0]))
+    # goal = np.pad(params[0][:3], (0, 45))
+    # print(goal)
+    # print(scaler.inverse_transform(goal))
+    # run_dumb_env(env)
+    # params = np.loadtxt('data/params_test_1')
+    # print(params)
+    #
+    #
+    # # fl = open('data/goals_1', 'rb')
+    # # goals = pickle.load(fl)
+    # # # goals = numpy.array(goals)
+    # #
+    #
+    #
+
+
+
+    # print(params[0])
     # # params = numpy.array(params)
     #
-    # print(goals)
-    # print(params)
+    # all_data = np.concatenate((goals, params), axis=1)
+    # print(np.shape(all_data))
+    #
+    # train_data = all_data[:800]
+    # print(np.shape(train_data))
+    #
+    # test_data = all_data[800:]
+    # print(np.shape(test_data))
+    #
+    # np.savetxt('data/train_v0.txt', train_data)
+    # np.savetxt('data/test_v0.txt', test_data)
+
+    # train_data = np.loadtxt('data/train_v0.txt')
+    # test_data = np.loadtxt('data/test_v0.txt')
+    #
+    # scaler = StandardScaler()
+    # train_data_normed = scaler.fit_transform(train_data)
+    # test_data_normed = scaler.transform(test_data)
+    #
+    # np.savetxt(f"data/train_data_normed_v0.txt", train_data_normed)
+    # np.savetxt(f"data/test_data_normed_v0.txt", test_data_normed)
+    #
+    # pickle.dump(scaler, open(f"data/scaler_v0.p", 'wb'))
+
 
     # goals, params = collect_data(1000, name='agents/exp2_agent')
     #
@@ -203,7 +255,7 @@ def main():
 
     # view_agent_runs('agents/exp2_agent', 10)
 
-    run_random_experiments()
+    # run_random_experiments()
 
     # goal = generate_random_goal()
     # #
